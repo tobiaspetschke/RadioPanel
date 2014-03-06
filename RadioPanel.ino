@@ -70,8 +70,6 @@ volatile static uint8_t PCintLast[3];
   *pcmask |= bit;
   // enable the interrupt
   PCICR |= 0x01 << port;
-   Serial.print("attach");
-
 }
 
 void PCdetachInterrupt(uint8_t pin) {
@@ -104,8 +102,6 @@ static void PCint(uint8_t port) {
   uint8_t mask;
   uint8_t pin;
 
-  Serial.print("int");
-
   // get the pin states for the indicated port.
   curr = *portInputRegister(port+2);
   mask = curr ^ PCintLast[port];
@@ -125,7 +121,7 @@ static void PCint(uint8_t port) {
           || ((Pins[pin].mode == RISING) && (curr & bit))
           || ((Pins[pin].mode == FALLING) && !(curr & bit)))
           && (Pins[pin].pinFunc != NULL)) {
-        Pins[pin].pinFunc(1);
+        Pins[pin].pinFunc((curr & bit)? HIGH:LOW);
       }
     }
   }
@@ -147,6 +143,7 @@ long i = 0;
 
 void tick(uint8_t state) {
   ticktocks++;
+  Serial.print(state, DEC);
 }
 
 void tock(uint8_t state) {
@@ -156,20 +153,17 @@ void tock(uint8_t state) {
 void setup()
 {
   Serial.begin(9600);
-  pinMode(18, INPUT);
-  digitalWrite(18,HIGH);
-  //pinMode(5, INPUT);
+  pinMode(2, INPUT_PULLUP);
   delay(1000);
-  PCattachInterrupt(18, tick, CHANGE);
-  //PCattachInterrupt(5, tock, CHANGE);
+  PCattachInterrupt(2, tick, CHANGE);
 }
 
 void loop() {
   i++;
-  delay(1000);
-  Serial.print(i, DEC);
-  Serial.print(" ");
-  Serial.println(ticktocks);
+  delay(10);
+  //Serial.print(i, DEC);
+  //Serial.print(" ");
+  //Serial.println(ticktocks);
   if (i > 256) {
     //PCdetachInterrupt(18);
     //PCdetachInterrupt(5);
