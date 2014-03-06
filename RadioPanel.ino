@@ -143,7 +143,7 @@ long i = 0;
 
 void tick(uint8_t state) {
   ticktocks++;
-  Serial.print(state, DEC);
+
 }
 
 void tock(uint8_t state) {
