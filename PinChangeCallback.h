@@ -4,7 +4,7 @@
 
 #include "pins_arduino.h"
 
-typedef void (*pinChangeFunc)(uint8_t);
+typedef void (*pinChangeFunc)(bool);
 
 /* Mode: RISING, FALLING, CHANGE */
 void PCattachInterrupt(uint8_t pin, pinChangeFunc func , int mode);

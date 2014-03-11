@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "PinChangeCallback.h"
 
-
 volatile uint8_t *port_to_pcmask[] = {
   &PCMSK0,
   &PCMSK1,
@@ -100,7 +99,7 @@ static void PCint(uint8_t port) {
           || ((Pins[pin].mode == RISING) && (curr & bit))
           || ((Pins[pin].mode == FALLING) && !(curr & bit)))
           && (Pins[pin].pinFunc != NULL)) {
-        Pins[pin].pinFunc((curr & bit)? HIGH:LOW);
+        Pins[pin].pinFunc((curr & bit)? true:false);
       }
     }
   }
