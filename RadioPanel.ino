@@ -1,14 +1,17 @@
 // RadioPanel.ino
 #include "pins_arduino.h"
-#include "PinChangeCallback.h"
+#include "ooPinChangeInt.h"
+//#include "Button.h"
+
+//Button b(2,"W");
 
 void setup()
 {
   Serial.begin(9600);
   pinMode(2, INPUT_PULLUP);
   delay(1000);
-  PCattachInterrupt(2, 0, CHANGE);
-  PCdetachInterrupt(2);
+  //PCattachInterrupt(2, 0, CHANGE);
+  //PCdetachInterrupt(2);
 }
 
 void loop()

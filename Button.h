@@ -15,26 +15,25 @@
 class Button /*: public CallBackInterface */
 {
  public:
-   bool state;
-   bool uint8_t newState;
+   bool currentState, newState;
    uint8_t pin;
    char *name;
 
    void pinChangeCallback(bool state)
    {
      volatile static long timeLastPress=0;
-     if (millis() - timeLastPress > DEAD_MILLIS_AFTER_PRESS)
+     if (millis() - timeLastPress > DEBOUNCE_TIMEOUT_MS)
      {
       
       timeLastPress = millis();
      }
    };
 
-   button (uint8_t _pin, char *_name): pin(_pin), name(_name)
+   Button (uint8_t _pin, char *_name): pin(_pin), name(_name)
    {
       pinMode(pin, INPUT_PULLUP);
-      state = lastState = (bool) digitalRead(pin);
-      PCintPort::attachInterrupt(pin, &pinChangeCallback, CHANGE);
+      currentState = newState = (bool) digitalRead(pin);
+      //PCattachInterrupt(pin, &Button::pinChangeCallback, CHANGE);
    };   
   
    char *getName()
