@@ -1,5 +1,5 @@
-#ifndef __BUTTON_H__
-#define __BUTTON_H__
+#ifndef __BUTTON_CONTROL_H__
+#define __BUTTON_CONTROL_H__
 
 #if defined(ARDUINO) && ARDUINO >= 100
   #include <Arduino.h>
@@ -8,39 +8,68 @@
   #include <WProgram.h>
 #endif
 
-#include "PinChangeCallback.h"
+#include "ooPinChangeInt.h"
+#include "PanelControl.h"
 
-#define DEBOUNCE_TIMEOUT_MS 20
+#define DEBOUNCE_TIMEOUT_MS 10
 
-class Button /*: public CallBackInterface */
+class Button : public PinChangeCallBackInterface, public PanelControlInterface
 {
- public:
-   bool currentState, newState;
+protected:
+ volatile long timeLastPress;
    uint8_t pin;
    char *name;
 
-   void pinChangeCallback(bool state)
+
+ public:
+   bool currentState;
+   volatile bool newState;
+
+   void SendState()
    {
-     volatile static long timeLastPress=0;
-     if (millis() - timeLastPress > DEBOUNCE_TIMEOUT_MS)
+    Serial.print("btn ");
+    Serial.print(name);
+    Serial.print(" state ");
+    Serial.println(currentState);
+   }
+
+   void Process()
+   {
+      noInterrupts();
+      if (newState != currentState)
+      {
+        if (millis() - DEBOUNCE_TIMEOUT_MS >= timeLastPress)
+        {
+          currentState = newState;
+          SendState();
+        }
+      }
+      interrupts();
+   }
+
+   void pinChanged(bool state)
+   {
+     state = ! state; // low means button is pushed
+     timeLastPress = millis();
+     if (state != currentState)
      {
-      
-      timeLastPress = millis();
+        newState = state;
      }
    };
 
    Button (uint8_t _pin, char *_name): pin(_pin), name(_name)
    {
       pinMode(pin, INPUT_PULLUP);
-      currentState = newState = (bool) digitalRead(pin);
-      //PCattachInterrupt(pin, &Button::pinChangeCallback, CHANGE);
+      newState = !digitalRead(pin);
+      currentState = newState;
+      timeLastPress=0;
+      PCintPort::attachInterrupt(pin, this, CHANGE);
    };   
   
    char *getName()
    {
      return name;
    }
-
 
 };
 

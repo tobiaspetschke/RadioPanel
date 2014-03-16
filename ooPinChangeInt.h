@@ -158,7 +158,7 @@ class PinChangeCallBackInterface
 
      PinChangeCallBackInterface() {};
 
-     virtual void pinChanged(bool state) {
+     virtual void pinChanged(bool state) { Serial.println("ouch");
      };
 
 };
@@ -394,7 +394,7 @@ void PCintPort::PCint() {
 
 		PCintPin* p = firstPin;
 		while (p) {
-			if (p->mask & changedPins) { // a changed bit
+			if (p->mask & changedPins) {
 				// Trigger interrupt if mode is CHANGE, or if mode is RISING and
 				// the bit is currently high, or if mode is FALLING and bit is low.
 					(*(p->pinCallBack)).pinChanged(PCintPort::curr & p->mask ? HIGH : LOW);
