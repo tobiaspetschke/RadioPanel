@@ -6,48 +6,62 @@
 #include "SerialCommand.h"
 
 PanelControlInterface* Controls[] =  { 
-						 new Button(2,"pwr"),
-						 new LED(6,"status"),
+						 new Button(2,"btnPwr"),
+						 new LED(6,"ledStatus"),
 						 NULL
 					 };
 
 SerialCommand cmdReader;
 
+
 void cmdUnknown(const char * cmd)
 {
-  Serial.print("Unknown command");
+  Serial.println("err unknown command");
 }
 
-void cmdEcho()
+void cmdProcessor()
 {
-
-}
-
-void cmdSetControlState()
-{
-  char *arg;
-  while(arg=cmdReader.next())
+  bool success = false;
+  sCommand cmd;
+  cmd.ctrlName = cmdReader.next();
+  cmd.property = cmdReader.next();
+  cmd.p1 = cmdReader.next();
+  cmd.p2 = cmdReader.next();
+  
+  if (cmd.ctrlName && cmd.property && cmd.p1)
   {
-    Serial.println(arg);
+    uint8_t i = 0;
+    while(Controls[i])
+    {
+      if (strcmp(cmd.ctrlName, Controls[i]->getName()) == 0)
+      {
+        success = Controls[i]->serialCmd(&cmd);        
+        break;
+      }
+      i++;
+    }
+  }
+
+  if (!success)
+  {
+    Serial.println("err");
   }
 }
-
 
 void setup()
 {  
   Serial.begin(9600);
   delay(50);
-  cmdReader.addCommand("set state", cmdSetControlState);
-  cmdReader.addCommand("echo", cmdEcho); 
+  cmdReader.addCommand("set", cmdProcessor);
+  cmdReader.setDefaultHandler(cmdUnknown);
 
-   ((LED*)Controls[1])->setState(true);
+  ((LED*)Controls[1])->setState(true);
   Serial.println("panel state 1");
 }
 
 void SendControlUpdates()
 {
 	uint8_t i=0;
-	
 	while(Controls[i])
 	{
 		Controls[i++]->Process();
@@ -58,7 +72,6 @@ void SendControlUpdates()
 void loop()
 {
     cmdReader.readSerial();
-    delay(30);
   	SendControlUpdates();
 
   //Serial.print(i, DEC);

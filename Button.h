@@ -17,9 +17,6 @@ class Button : public PinChangeCallBackInterface, public PanelControlInterface
 {
 protected:
  volatile long timeLastPress;
-   uint8_t pin;
-   char *name;
-
 
  public:
    bool currentState;
@@ -33,7 +30,7 @@ protected:
     Serial.println(currentState);
    }
 
-   void Process()
+   virtual void Process()
    {
       noInterrupts();
       if (newState != currentState)
@@ -57,19 +54,16 @@ protected:
      }
    };
 
-   Button (uint8_t _pin, char *_name): pin(_pin), name(_name)
+   Button (uint8_t _pin, char *_name)
    {
       pinMode(pin, INPUT_PULLUP);
       newState = !digitalRead(pin);
       currentState = newState;
       timeLastPress=0;
+      pin = _pin;
+      name = _name;
       PCintPort::attachInterrupt(pin, this, CHANGE);
    };   
-  
-   char *getName()
-   {
-     return name;
-   }
 
 };
 

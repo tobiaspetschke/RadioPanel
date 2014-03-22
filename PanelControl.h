@@ -8,17 +8,20 @@
   #include <WProgram.h>
 #endif
 
+#include "SerialCommand.h"
 
 class PanelControlInterface
 {
-protected:	 
+   protected:	 
 	uint8_t pin;
     char *name;
 
    public:
 
      PanelControlInterface() {};
-     virtual void Process() {}
+     virtual void Process() {};
+     virtual bool serialCmd(sCommand * pCmd) { return false; };
+     char * getName() { return name; };
 };
 
 #endif

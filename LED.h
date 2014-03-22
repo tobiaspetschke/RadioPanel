@@ -14,12 +14,9 @@ class LED: public PanelControlInterface
 {
 protected:
 	uint8_t pwm;
-	uint16_t breatheMillis;
+	uint8_t breatheMillis;
 	uint8_t minBreathePWM, maxBreathePWM;
 	int8_t step, stepSize;
-	uint8_t pin;
-    char *name;
-
 
 public:
 
@@ -35,22 +32,24 @@ public:
 		analogWrite(pin,level);
 	}
 
-	void breathe(uint16_t periodMillis, uint8_t _step)
+	void breathe(uint8_t periodMillis, uint8_t _step)
 	{
 		step = stepSize = _step;
 		setBrightness(minBreathePWM);
 		breatheMillis=periodMillis;
 	}
 
-	LED (uint8_t _pin, char *_name): pin(_pin), name(_name)
+	LED (uint8_t _pin, char *_name)
 	{
 		pinMode(_pin, OUTPUT);
 		breatheMillis = 0;
 		minBreathePWM=10; 
 		maxBreathePWM=200;
+		pin = _pin;
+		name = _name;
 	}
 
-	void Process()
+	virtual void Process()
 	{
 		if (breatheMillis)
 		{
@@ -78,6 +77,30 @@ public:
 			} 
 		}
 	}
+
+	virtual bool serialCmd(sCommand * pCmd)
+	{ 
+		bool success = false;
+
+		if (strcmp(pCmd->property,"lvl") == 0)
+		{
+			setBrightness((uint8_t) atoi(pCmd->p1));
+			success = true;
+		}
+		else if (pCmd->p2 && (strcmp(pCmd->property,"breathe") == 0))
+		{
+			success = true;
+			breathe(atoi(pCmd->p1), atoi(pCmd->p2));
+		} 
+
+		if (!success)
+		{
+			Serial.println("ok");
+		}
+
+		return success;
+	}
 };
+
 
 #endif

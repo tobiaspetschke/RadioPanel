@@ -41,6 +41,14 @@
 // Uncomment the next line to run the library in debug mode (verbose messages)
 //#define SERIALCOMMAND_DEBUG
 
+typedef struct 
+{
+  char * ctrlName;
+  char * property;
+  char * p1;
+  char * p2;
+} sCommand;
+
 
 class SerialCommand {
   public:
