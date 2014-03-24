@@ -3,11 +3,13 @@
 #include "PanelControl.h"
 #include "Button.h"
 #include "LED.h"
+#include "TriColourLED.h"
 #include "SerialCommand.h"
 
 PanelControlInterface* Controls[] =  { 
 						 new Button(2,"btnPwr"),
-						 new LED(6,"ledStatus"),
+						 /*new LED(13,"ledStatus"),*/
+             new TriColourLED(6,5,"tri"),
 						 NULL
 					 };
 
@@ -27,6 +29,7 @@ void cmdProcessor()
   cmd.property = cmdReader.next();
   cmd.p1 = cmdReader.next();
   cmd.p2 = cmdReader.next();
+  cmd.p3 = cmdReader.next();
   
   if (cmd.ctrlName && cmd.property && cmd.p1)
   {
@@ -42,21 +45,22 @@ void cmdProcessor()
     }
   }
 
-  if (!success)
-  {
-    Serial.println("err");
-  }
+  Serial.println(success? "ok" : "err");
 }
 
 void setup()
 {  
+  pinMode(13,INPUT);
   Serial.begin(9600);
   delay(50);
+  cmdReader.clearBuffer();
   cmdReader.addCommand("set", cmdProcessor);
   cmdReader.setDefaultHandler(cmdUnknown);
-
-  ((LED*)Controls[1])->setState(true);
+  ((TriColourLED*)Controls[1])->setColour(Yellow);
+  ((TriColourLED*)Controls[1])->setBrightness(255);
+  ((TriColourLED*)Controls[1])->breathe(50,3);
   Serial.println("panel state 1");
+
 }
 
 void SendControlUpdates()

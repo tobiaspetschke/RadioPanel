@@ -19,6 +19,7 @@ class PanelControlInterface
    public:
 
      PanelControlInterface() {};
+     virtual ~PanelControlInterface() {};
      virtual void Process() {};
      virtual bool serialCmd(sCommand * pCmd) { return false; };
      char * getName() { return name; };

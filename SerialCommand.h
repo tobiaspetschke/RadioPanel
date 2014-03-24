@@ -47,6 +47,7 @@ typedef struct
   char * property;
   char * p1;
   char * p2;
+  char * p3;
 } sCommand;
 
 

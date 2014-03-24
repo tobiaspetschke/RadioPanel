@@ -17,13 +17,9 @@ protected:
 	uint8_t breatheMillis;
 	uint8_t minBreathePWM, maxBreathePWM;
 	int8_t step, stepSize;
+	long lastBreatheTime;
 
 public:
-
-	void setState(bool state)
-	{
-		setBrightness(state? 255:0);
-	}
 
 	void setBrightness(uint8_t level)
 	{
@@ -47,13 +43,14 @@ public:
 		maxBreathePWM=200;
 		pin = _pin;
 		name = _name;
+		lastBreatheTime=0;
 	}
 
 	virtual void Process()
 	{
 		if (breatheMillis)
 		{
-			static long lastBreatheTime=0;
+			
 			if (millis() >= lastBreatheTime + breatheMillis)
 			{				
 				int16_t newPWM = pwm + step;
@@ -80,25 +77,18 @@ public:
 
 	virtual bool serialCmd(sCommand * pCmd)
 	{ 
-		bool success = false;
-
 		if (strcmp(pCmd->property,"lvl") == 0)
 		{
 			setBrightness((uint8_t) atoi(pCmd->p1));
-			success = true;
+			return true;
 		}
 		else if (pCmd->p2 && (strcmp(pCmd->property,"breathe") == 0))
 		{
-			success = true;
 			breathe(atoi(pCmd->p1), atoi(pCmd->p2));
+			return true;
 		} 
 
-		if (!success)
-		{
-			Serial.println("ok");
-		}
-
-		return success;
+		return false;
 	}
 };
 
